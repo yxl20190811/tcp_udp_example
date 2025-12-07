@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Log Forwarder</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        h1 {
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            border-bottom: 1px solid #ecf0f1;
+            padding-bottom: 5px;
+            margin-top: 30px;
+        }
+        code {
+            background-color: #f1f2f6;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+        }
+        pre {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+        }
+        blockquote {
+            border-left: 4px solid #3498db;
+            padding-left: 15px;
+            margin-left: 0;
+            color: #7f8c8d;
+        }
+        ul, ol {
+            padding-left: 20px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: 0;
+            height: 1px;
+            background: #ecf0f1;
+            margin: 30px 0;
+        }
+        .badge {
+            display: inline-block;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            margin: 0 2px;
+        }
+        .badge-blue {
+            background-color: #3498db;
+            color: white;
+        }
+        .badge-green {
+            background-color: #2ecc71;
+            color: white;
+        }
+        .badge-orange {
+            background-color: #e67e22;
+            color: white;
+        }
+        .emoji {
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <h1><span class="emoji">📦</span> Network Log Forwarder</h1>
+    
+    <p>A lightweight, modular C implementation for collecting and forwarding logs over TCP/UDP. Designed to bridge legacy TCP-based clients with modern UDP-only logging backends.</p>
+    
+    <p>
+        <span class="badge badge-blue">C</span>
+        <span class="badge badge-green">POSIX</span>
+        <span class="badge badge-orange">License</span>
+    </p>
+
+    <hr>
+
+    <h2><span class="emoji">📦</span> Overview</h2>
+    <p>This project provides three core utilities:</p>
+    <ul>
+        <li><strong><code>udp_server</code></strong>: Listens on a UDP port and appends all received datagrams to a log file.</li>
+        <li><strong><code>tcp_server</code></strong>: Accepts TCP connections and forwards every received byte to a configured UDP endpoint (acts as a TCP-to-UDP bridge).</li>
+        <li><strong><code>test_client</code></strong>: Sends formatted log messages via TCP or UDP for testing and simulation.</li>
+    </ul>
+    <p>Built with simplicity, reliability, and POSIX compliance in mind—ideal for embedded systems, legacy integration, or custom logging pipelines.</p>
+
+    <hr>
+
+    <h2><span class="emoji">🗂️</span> Project Structure</h2>
+    <pre><code>.
+├── .vscode/               # VS Code debug &amp; build configs
+├── bin/                   # Compiled executables (generated)
+├── src/
+│   ├── udp_server.c       # UDP log collector
+│   ├── tcp_server.c       # TCP-to-UDP forwarder (multi-threaded)
+│   ├── test_client.c      # Test client with auto-formatted logs
+│   ├── send_all.h         # Reliable TCP send utility (header)
+│   └── send_all.c         # Reliable TCP send utility (implementation)
+└── Makefile               # Build automation
+</code></pre>
+
+    <p>All source code resides in <code>src/</code>. Binaries are output to <code>bin/</code> upon build.</p>
+
+    <hr>
+
+    <h2><span class="emoji">⚙️</span> Build</h2>
+    <p>Ensure you have a standard C toolchain (<code>gcc</code>, <code>make</code>) installed.</p>
+    
+    <pre><code>git clone &lt;repo-url&gt;
+cd &lt;project-dir&gt;
+make
+</code></pre>
+
+    <blockquote><span class="emoji">✅</span> Output: <code>bin/udp_server</code>, <code>bin/tcp_server</code>, <code>bin/test_client</code></blockquote>
+
+    <p>To clean build artifacts:</p>
+    <pre><code>make clean
+</code></pre>
+
+    <hr>
+
+    <h2><span class="emoji">🚀</span> Usage</h2>
+
+    <h3>1. Start the UDP Log Collector</h3>
+    <pre><code>./bin/udp_server &lt;udp_port&gt; &lt;log_file&gt;
+</code></pre>
+
+    <p><strong>Example</strong>:</p>
+    <pre><code>./bin/udp_server 5140 /var/log/app.log
+</code></pre>
+    <ul>
+        <li>Listens on UDP port <code>5140</code></li>
+        <li>Appends all incoming datagrams to <code>/var/log/app.log</code></li>
+        <li>Runs indefinitely until terminated</li>
+    </ul>
+
+    <h3>2. (Optional) Start the TCP-to-UDP Bridge</h3>
+    <pre><code>./bin/tcp_server &lt;tcp_listen_port&gt; &lt;udp_target_host&gt; &lt;udp_target_port&gt;
+</code></pre>
+
+    <p><strong>Example</strong>:</p>
+    <pre><code>./bin/tcp_server 9999 127.0.0.1 5140
+</code></pre>
+    <ul>
+        <li>Accepts TCP clients on port <code>9999</code></li>
+        <li>Forwards all received data to <code>127.0.0.1:5140</code> over UDP</li>
+        <li>Supports concurrent clients via pthreads</li>
+    </ul>
+
+    <blockquote><span class="emoji">💡</span> Use this when your clients only support TCP but your logging backend is UDP-only.</blockquote>
+
+    <h3>3. Send Test Logs</h3>
+    <pre><code>./bin/test_client [tcp|udp] &lt;host&gt; &lt;port&gt; "&lt;message&gt;"
+</code></pre>
+
+    <p><strong>Examples</strong>:</p>
+    <pre><code># Send via UDP directly to udp_server
+./bin/test_client udp 127.0.0.1 5140 "System started"
+
+# Send via TCP to tcp_server (which forwards to UDP)
+./bin/test_client tcp 127.0.0.1 9999 "Legacy device heartbeat"
+</code></pre>
+
+    <p><strong>Log Format</strong>:</p>
+    <pre><code>[YYYY-MM-DD HH:MM:SS][user_message][source_file][line_number]
+</code></pre>
+
+    <p>Example output in log file:</p>
+    <pre><code>[2025-12-07 10:30:45][System started][/path/to/test_client.c][68]
+</code></pre>
+
+    <hr>
+
+    <h2><span class="emoji">🔧</span> How It Works</h2>
+
+    <h3>Architecture</h3>
+    <pre><code>+--------------+     +------------------+     +------------------+
+| TCP Client   | --&gt; | tcp_server       | --&gt; |                  |
+| (e.g., old   | TCP | (TCP→UDP bridge) | UDP | udp_server       |
+|  device)     |     +------------------+     | → log file       |
++--------------+                              +------------------+
+        ^
+        |
++--------------+
+| UDP Client   | ----------------------------&gt; |
+| (modern app) | UDP
++--------------+
+</code></pre>
+
+    <h3>Key Features</h3>
+    <ul>
+        <li><strong>Reliable TCP Sending</strong>: The <code>send_all()</code> utility ensures complete transmission even if <code>send()</code> returns partial writes.</li>
+        <li><strong>Thread-Safe TCP Handling</strong>: Each TCP client runs in its own detached thread.</li>
+        <li><strong>Real-Time Logging</strong>: UDP server disables stdio buffering for immediate disk writes.</li>
+        <li><strong>Zero External Dependencies</strong>: Pure POSIX sockets and standard C library.</li>
+    </ul>
+
+    <hr>
+
+    <h2><span class="emoji">🛑</span> Limitations &amp; Considerations</h2>
+    <ul>
+        <li><strong>No Encryption or Auth</strong>: Intended for trusted networks only.</li>
+        <li><strong>UDP Is Unreliable</strong>: Datagrams may be dropped under load—unsuitable for critical audit logs.</li>
+        <li><strong>Thread Per Connection</strong>: <code>tcp_server</code> scales linearly with clients; not ideal for &gt;1k concurrent connections.</li>
+        <li><strong>IPv4 Only</strong>: No IPv6 support in current version.</li>
+    </ul>
+
+    <hr>
+
+    <h2><span class="emoji">🛠️</span> Development</h2>
+
+    <h3>VS Code Integration</h3>
+    <p>The <code>.vscode/</code> folder includes:</p>
+    <ul>
+        <li><code>tasks.json</code>: Build with <code>Ctrl+Shift+B</code></li>
+        <li><code>launch.json</code>: Debug any binary with F5</li>
+    </ul>
+
+    <h3>Extending the System</h3>
+    <p>Possible enhancements:</p>
+    <ul>
+        <li>Add TLS support for secure TCP transport</li>
+        <li>Implement log rotation in <code>udp_server</code></li>
+        <li>Support configuration files</li>
+        <li>Add metrics (e.g., message rate, client count)</li>
+        <li>Migrate to <code>epoll</code>/<code>kqueue</code> for high-concurrency TCP</li>
+    </ul>
+
+    <hr>
+
+    <h2><span class="emoji">📜</span> License</h2>
+    <p>MIT License — see <a href="LICENSE">LICENSE</a> for details.</p>
+
+    <hr>
+
+    <blockquote><span class="emoji">✨</span> <strong>Tip</strong>: Combine with <code>logrotate</code>, <code>rsyslog</code>, or ELK stack for production-grade logging!</blockquote>
+</body>
+</html>
