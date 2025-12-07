@@ -5,6 +5,7 @@ A lightweight, modular C implementation for collecting and forwarding logs over 
 ![C](https://img.shields.io/badge/language-C-blue)
 ![POSIX](https://img.shields.io/badge/standard-POSIX-green)
 ![License](https://img.shields.io/badge/license-MIT-orange)
+
 📦 Overview
 
 This project provides three core utilities:
