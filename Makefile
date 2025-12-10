@@ -11,22 +11,24 @@ BINDIR    := bin
 OBJDIR    := .obj
 
 # === Targets (executables) ===
-TARGETS   := $(BINDIR)/udp_server $(BINDIR)/tcp_server $(BINDIR)/test_client
+TARGETS   := $(BINDIR)/udp_server $(BINDIR)/tcp_server $(BINDIR)/test_client $(BINDIR)/epoll_server
 
 # === Source files ===
 UDP_SERVER_SRC    := $(SRCDIR)/udp_server.c
 TCP_SERVER_SRC    := $(SRCDIR)/tcp_server.c
 TEST_CLIENT_SRC   := $(SRCDIR)/test_client.c
+EPOLL_SERVER_SRC  := $(SRCDIR)/epoll_server.c
 SEND_ALL_SRC      := $(SRCDIR)/send_all.c
 
 # === Object files ===
 UDP_SERVER_OBJ    := $(OBJDIR)/udp_server.o
 TCP_SERVER_OBJ    := $(OBJDIR)/tcp_server.o
 TEST_CLIENT_OBJ   := $(OBJDIR)/test_client.o
+EPOLL_SERVER_OBJ  := $(OBJDIR)/epoll_server.o
 SEND_ALL_OBJ      := $(OBJDIR)/send_all.o
 
 # === Dependency files ===
-DEPS := $(UDP_SERVER_OBJ:.o=.d) $(TCP_SERVER_OBJ:.o=.d) $(TEST_CLIENT_OBJ:.o=.d) $(SEND_ALL_OBJ:.o=.d)
+DEPS := $(UDP_SERVER_OBJ:.o=.d) $(TCP_SERVER_OBJ:.o=.d) $(TEST_CLIENT_OBJ:.o=.d) $(EPOLL_SERVER_OBJ:.o=.d) $(SEND_ALL_OBJ:.o=.d)
 
 # === Default target ===
 .PHONY: all clean help
@@ -42,6 +44,9 @@ $(BINDIR)/tcp_server: $(TCP_SERVER_OBJ) $(SEND_ALL_OBJ)
 
 $(BINDIR)/test_client: $(TEST_CLIENT_OBJ) $(SEND_ALL_OBJ)
 	$(CC) $(LDFLAGS) $^ $(LIBS) -o $@
+
+$(BINDIR)/epoll_server: $(EPOLL_SERVER_OBJ)
+	$(CC) $(LDFLAGS) $^ -o $@
 
 # === Compile rule with dependency generation ===
 $(OBJDIR)/%.o: $(SRCDIR)/%.c | $(OBJDIR)
@@ -65,5 +70,6 @@ help:
 	@echo "  udp_server   - Build UDP logging server"
 	@echo "  tcp_server   - Build TCP-to-UDP proxy server"
 	@echo "  test_client  - Build test client"
+	@echo "  epoll_server - Build epoll-based TCP-to-UDP proxy server"
 	@echo "  clean        - Remove all build artifacts"
 	@echo "  help         - Show this message"
